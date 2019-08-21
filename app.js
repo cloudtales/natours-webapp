@@ -7,10 +7,14 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 // MIDDLEWARES
-app.use(morgan('dev'));
-app.use(express.json()); // middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
-app.use((req, _res, next) => {
+app.use(express.json()); // middleware
+//app.use(express.static(`${__dirname}/public`));
+
+app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
