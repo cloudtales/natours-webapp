@@ -4,7 +4,7 @@
   "description": "Learning node, express and mongoDB",
   "main": "server.js",
   "scripts": {
-    "start:dev": "nodemon server.js",
+    "start": "nodemon server.js",
     "start:prod": "SET NODE_ENV=production&& nodemon server.js"
   },
   "author": "Stephan Schaefer",
@@ -12,6 +12,7 @@
   "dependencies": {
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
+    "mongoose": "^5.6.10",
     "morgan": "^1.9.1"
   },
   "devDependencies": {
@@ -25,5 +26,8 @@
     "eslint-plugin-react": "^7.14.3",
     "nodemon": "^1.19.1",
     "prettier": "^1.18.2"
+  },
+  "engines": {
+    "node": ">=10.0.0"
   }
 }
