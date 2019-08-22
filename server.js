@@ -15,6 +15,7 @@ const DB = process.env.DATABASE.replace(
 
 const port = process.env.PORT || 3000;
 
+
 (async () => {
   try {
     await mongoose.connect(DB, {
@@ -28,3 +29,4 @@ const port = process.env.PORT || 3000;
     console.log(err);
   }
 })();
+
