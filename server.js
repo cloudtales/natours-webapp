@@ -15,18 +15,34 @@ const DB = process.env.DATABASE.replace(
 
 const port = process.env.PORT || 3000;
 
+let server;
 
 (async () => {
-  try {
-    await mongoose.connect(DB, {
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      useFindAndModify: false
-    });
-    await app.listen(port);
-    console.log(`App running on port ${port}...`);
-  } catch (err) {
-    console.log(err);
-  }
+  await mongoose.connect(DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+  });
+  server = await app.listen(port);
+  console.log(`App running on port ${port}...`);
 })();
 
+const shutdown = async () => {
+  await server.close();
+  await mongoose.disconnect();
+  process.exit(1);
+};
+
+// Handle unhandled rejections
+process.on('unhandledRejection', err => {
+  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.error(err);
+  shutdown();
+});
+
+// Handle all uncaught exceptions
+process.on('uncaughtException', err => {
+  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+  console.error(err);
+  shutdown();
+});
