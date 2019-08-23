@@ -1,8 +1,28 @@
 const mongoose = require('mongoose');
-
 const dotenv = require('dotenv');
 
 dotenv.config({ path: './config.env' });
+
+let server;
+
+const shutdown = async () => {
+  await server.close();
+  await mongoose.disconnect();
+  process.exit(1);
+};
+
+process.on('unhandledRejection', err => {
+  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.error(err);
+  shutdown();
+});
+
+// Handle all uncaught exceptions
+process.on('uncaughtException', err => {
+  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+  console.error(err);
+  process.exit(1);
+});
 
 const app = require('./app');
 
@@ -15,8 +35,6 @@ const DB = process.env.DATABASE.replace(
 
 const port = process.env.PORT || 3000;
 
-let server;
-
 (async () => {
   await mongoose.connect(DB, {
     useNewUrlParser: true,
@@ -26,23 +44,3 @@ let server;
   server = await app.listen(port);
   console.log(`App running on port ${port}...`);
 })();
-
-const shutdown = async () => {
-  await server.close();
-  await mongoose.disconnect();
-  process.exit(1);
-};
-
-// Handle unhandled rejections
-process.on('unhandledRejection', err => {
-  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
-  console.error(err);
-  shutdown();
-});
-
-// Handle all uncaught exceptions
-process.on('uncaughtException', err => {
-  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
-  console.error(err);
-  shutdown();
-});
