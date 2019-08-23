@@ -91,3 +91,20 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = freshUser;
   next();
 });
+
+// we return the actual middleware function and have aaccess to the roles array due to the closure
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    // roles ['admin','lead-guide']. role ='user'
+    if (!roles.includes(req.user.role)) {
+      // req.user i savaible because we add this parameter in the protect middleware
+      return next(
+        new AppError(
+          'You do not have have permission to perform this action',
+          403
+        )
+      );
+    }
+    next();
+  };
+};

@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next(); // Check if the acutal field has been updated, maybe teh user only updated the email
 
-  // Has the password with cost of 12
+  // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
 
   this.passwordConfirm = undefined; // this way the field will not be persisted into mongo
