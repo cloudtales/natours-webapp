@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -42,7 +43,9 @@ const userSchema = new mongoose.Schema({
   },
   passwordChangedAt: {
     type: Date
-  }
+  },
+  passwordResetToken: String,
+  passwordResetExpires: Date
 });
 
 // async middleware due to the fact bcrypt takes a bit of time
@@ -53,6 +56,13 @@ userSchema.pre('save', async function(next) {
   this.password = await bcrypt.hash(this.password, 12);
 
   this.passwordConfirm = undefined; // this way the field will not be persisted into mongo
+  next();
+});
+
+userSchema.pre('save', function(next) {
+  if (!this.isModified('password') || this.isNew) return next(); // only add the field if the password is new (i.e. /resetPassword) not when a user is created
+
+  this.passwordChangedAt = Date.now(); //- 1000; //small hack to assure teh token is created after the password has changes (db slow)
   next();
 });
 
@@ -74,6 +84,23 @@ userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   }
   // False means NOT changed
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function() {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  // We use a less stronger crypto here, becuase it will be only valid for 10 minutes
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  console.log({ resetToken }, this.passwordResetToken);
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  //save to databasePassword
+
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);
