@@ -1,9 +1,13 @@
-const fs = require('fs');
-
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 const Tour = require('./../../models/tourModel');
+const User = require('./../../models/userModel');
+const Review = require('./../../models/reviewModel');
+
+const tours = require('./tours.json');
+const reviews = require('./reviews.json');
+const users = require('./users.json');
 
 dotenv.config({ path: './config.env' });
 
@@ -12,14 +16,13 @@ const DB = process.env.DATABASE.replace(
   process.env.DATABASE_PASSWORD
 );
 
-// READ JSON FILE
-
-const tours = require('./tours-simple.json');
-
 // IMPORT DATA INTO DATABASE
 
 const importData = async () => {
   await Tour.create(tours);
+  await Review.create(reviews);
+  await User.create(users, { validateBeforeSave: false }); // Turn of validation (We don't have a passwordConfirm)
+
   console.log('Data succesfully loaded');
 };
 
@@ -27,6 +30,8 @@ const importData = async () => {
 
 const deleteData = async () => {
   await Tour.deleteMany();
+  await User.deleteMany();
+  await Review.deleteMany();
   console.log('Data succesfully deleted');
 };
 
