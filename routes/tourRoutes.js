@@ -26,6 +26,14 @@ router
     tourController.getMonthlyPlan
   );
 
+//other option would be to use query strings i.e. /tours.distance?dsiatnce=233&center=-40,45&unit=min
+// /tour-distance/233/center/-40,45/units/min
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(tourController.getToursWithin);
+
+router.route('/distances/:latlng/unit/:unit').get(tourController.getDistances);
+
 router
   .route('/')
   .get(tourController.getAllTours)
